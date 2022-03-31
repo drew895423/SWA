@@ -1,0 +1,27 @@
+{
+    "manifest_version": 2,
+    "name": "SolarWinds Assist",
+    "description": "Checks every 5 seconds for new incident tickets",
+    "version": "1.2",
+    "homepage_url": "https://www.noidea897987987.com",
+    "browser_action": {
+        "default_icon": "favicon.png",
+        "default_popup": "popup.html",
+        "default_title": "SolarWinds Assist"
+    },
+    "content_scripts": [{
+        "matches": ["*://*.ticketnetwork.com/*"],
+        "js":      ["scripts/content.js"],
+        "run_at": "document_end"
+    }],
+    "permissions": [
+        "activeTab",
+        "storage"
+    ],
+    "content_security_policy": "script-src 'self' https://www.gstatic.com/; object-src 'self'",
+    "externally_connectable" : {
+        "matches": ["*://*.ticketnetwork.com/*"],
+        "ids": ["cliaehbjehgfgjodigeoimfdjkdopbko"]
+    }
+}
+
