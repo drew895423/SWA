@@ -1,4 +1,5 @@
 let nameReceived;
+let volumeSetting;
 
 document.addEventListener('DOMContentLoaded', function() {
     var button = document.getElementById('Settings');
@@ -29,7 +30,12 @@ document.addEventListener('DOMContentLoaded', function() {
     setStartingVolume(volumeSlider);
     volumeSlider.addEventListener('change', ()=> {
         chromeSet('savedVolume', volumeSlider.value);
+        volumeSetting = volumeSlider.value;
     });
+    var soundTest = document.getElementById('testSound');
+    soundTest.addEventListener('click', () => {
+        playMario().play();
+    })
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -48,8 +54,8 @@ function getInitVolume() {
 }
 
 function setStartingVolume(volumeSlider) {
-    console.log('set starting runs')
     getInitVolume().then(result => {
+        volumeSetting = result.savedVolume;
         volumeSlider.value = result.savedVolume;
     });
 }
@@ -97,6 +103,6 @@ function chromeGet(key) {
 
 function playMario() {
     var audio = new Audio('audio/drm64_mario3.wav');
-    audio.volume = volumeSetting;
+    audio.volume = volumeSetting / 100;
     return audio;
 }
