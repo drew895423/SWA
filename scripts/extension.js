@@ -23,6 +23,13 @@ document.addEventListener('DOMContentLoaded', function() {
     hideButton.addEventListener('click', () => {
         document.body.remove();
     });
+    var volumeSlider = document.getElementById('volume-control');
+    volumeSlider.style.position = "relative";
+    volumeSlider.style.top = "4px";
+    setStartingVolume(volumeSlider);
+    volumeSlider.addEventListener('change', ()=> {
+        chromeSet('savedVolume', volumeSlider.value);
+    });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -32,7 +39,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
-//key may be unused
+function getInitVolume() {
+    return new Promise (resolve => {
+        chrome.storage.local.get('savedVolume', result => {
+            resolve(result);
+        })
+    })
+}
+
+function setStartingVolume(volumeSlider) {
+    console.log('set starting runs')
+    getInitVolume().then(result => {
+        volumeSlider.value = result.savedVolume;
+    });
+}
+
 function waitForLocal(key) {
     return new Promise (resolve => {
         chrome.storage.local.get(key, function(result) {
@@ -76,5 +97,6 @@ function chromeGet(key) {
 
 function playMario() {
     var audio = new Audio('audio/drm64_mario3.wav');
+    audio.volume = volumeSetting;
     return audio;
 }

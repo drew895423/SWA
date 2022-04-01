@@ -2,6 +2,7 @@ let stillCheck = true;
 let stillCheckName = true;
 let saveResonse;
 let responseName;
+let isKeepAliveGoing = true;
 const editorExtensionId = 'cliaehbjehgfgjodigeoimfdjkdopbko';
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
@@ -50,8 +51,12 @@ function checkForName() {
                     getUserName('name', i);
                 } else if (responseName == i.innerText) {
                     stillCheck = false;
+                    observer.disconnect();
                 } else {
-                    checkForIncident();
+                    if (isKeepAliveGoing) {
+                        isKeepAliveGoing = false;
+                        checkForIncident();
+                    }
                 }
             }
         });
@@ -67,7 +72,6 @@ function checkForIncident() {
     } else {
         //old, usually name loads first, keeping to double check
         setTimeout(checkForIncident, 4000);
-        return false;
     }
 }
 
@@ -76,6 +80,7 @@ function shouldNotify() {
         chrome.runtime.sendMessage(editorExtensionId, {command: 'soundOn'});
         stillCheck = false;
         notifyBrowser('hi', 'hi', 'hi');
+        observer.disconnect();
     }
 }
 

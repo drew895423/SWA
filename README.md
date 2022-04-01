@@ -1,4 +1,4 @@
-Trying to make an extension to help with things like Solar Winds ticket notifications
+Sends out a notification and send when a new ticket comes in.
 
 To install:  
   - download zip at top right
@@ -23,4 +23,4 @@ To setup:
 Known:
   - Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
     > chrome extension's window is not found or open
-  - Opening a new tab wipes out your inspect window
+  - Opening a new tab wipes out your inspect window and stops the program from running
