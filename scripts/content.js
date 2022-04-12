@@ -2,11 +2,48 @@ let stillCheck = true;
 let stillCheckName = true;
 let saveResonse;
 let responseName;
+let extID;
 let isKeepAliveGoing = true;
-const editorExtensionId = 'cliaehbjehgfgjodigeoimfdjkdopbko';
+let editorExtensionId;
+
+function findUserName() {
+    function waitForUsername() {
+        return new Promise (resolve => {
+            chrome.runtime.sendMessage(editorExtensionId, {command: 'name'}, (response) => {
+                resolve(response);
+            });
+        });
+    }
+    waitForUsername().then(resolve => {
+        if (resolve != null) {
+            responseName = resolve;
+            return resolve;
+        }
+    });
+}
+findUserName();
+
+function getExtID() {
+    function waitForID() {
+        return new Promise (resolve => {
+            chrome.runtime.sendMessage(editorExtensionId, {command: 'id'}, (response) => {
+                resolve(response);
+            });
+        });
+    }
+    waitForID().then(resolve => {
+        if (resolve != null) {
+            extID = resolve;
+            console.log('ext id is: ' + extID)
+            return resolve;
+        }
+    });
+}
+getExtID();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
-    saveResponse = sendResponse('我收到你的消息了：'+JSON.stringify("request"));
+    editorExtensionId = sender.id;
+    sendResponse({idFound: '我收到'});
 });
 
 let observer = new MutationObserver((mutations) => {
@@ -48,8 +85,7 @@ function checkForName() {
         Array.from(htmlNodeForName).forEach((i) => {
             if (i.innerText) {
                 if (responseName == undefined) {
-                    getUserName('name', i);
-                } else if (responseName == i.innerText) {
+                } else if (responseName === i.innerText) {
                     stillCheck = false;
                     observer.disconnect();
                 } else {
@@ -83,19 +119,3 @@ function shouldNotify() {
         observer.disconnect();
     }
 }
-
-function getUserName(key, i) {
-    function waitForUsername() {
-        return new Promise (resolve => {
-            chrome.runtime.sendMessage(editorExtensionId, {command: 'name'}, (response) => {
-                resolve(response);
-            });
-        });
-    }
-    waitForUsername().then(resolve => {
-        if (resolve != null) {
-            responseName = resolve;
-            return resolve;
-        }
-    });
-};

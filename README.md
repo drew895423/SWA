@@ -19,8 +19,13 @@ To use:
 
 To setup:
   - Click settings and type in your name, this will stop pop ups from happening from tickets in your que
+    > A name has to be set to something to work correctly
 
 Known:
   - Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
     > chrome extension's window is not found or open
   - Opening a new tab wipes out your inspect window and stops the program from running
+
+Todo:
+  - Sound setting to change sounds
+  - Phone update with new tickets for AFK tickets

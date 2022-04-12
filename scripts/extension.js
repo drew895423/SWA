@@ -1,5 +1,15 @@
-let nameReceived;
 let volumeSetting;
+let idColor = 'red';
+
+//color change doesnt hit START HERE TOMORROW
+chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
+      console.log(response.idfound);
+      if (response.idfound === '我收到') {
+        idColor = 'green';
+      }
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     var button = document.getElementById('Settings');
@@ -7,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!document.getElementById('input')) {
             var input = document.createElement("input");
             input.id = 'input';
-            input.type = "text";
+            input.type = 'text';
             container.appendChild(input);
             var okButton = document.createElement('button');
             okButton.addEventListener('click', () => {chromeSet("name", input.value)});
@@ -36,14 +46,31 @@ document.addEventListener('DOMContentLoaded', function() {
     soundTest.addEventListener('click', () => {
         playMario().play();
     })
+    var extIdButton = document.getElementById('extID');
+    extIdButton.addEventListener('click', () => {
+        chromeSet('id', chrome.runtime.id);
+    })
+    extIdButton.style.background = idColor;
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    sendResponse(chromeGet('name'));
-    if(message.command == 'soundOn' && chromeGet(message.command)) {
+    if(message.command === 'name') {
+        chromeGet(message.command, sendResponse);
+    }
+    if(message.command === 'id') {
+        chromeGet(message.command, sendResponse);
+    }
+    if(message.command === 'soundOn' && chromeGet(message.command)) {
         playMario().play();
     }
+    return true;
 });
+
+function waitToSend(gottenName) {
+    if (gottenName) {
+        return gottenName;
+    }
+}
 
 function getInitVolume() {
     return new Promise (resolve => {
@@ -85,14 +112,20 @@ function chromeSet(key, value) {
     });
 }
 
-function chromeGet(key) {
-    if (key == 'name') {
+function chromeGet(key, returnFunct) {
+    console.log(key)
+    if (key === 'name') {
         chrome.storage.local.get(key, function(result) {
-            nameReceived = result.name;
+            returnFunct(result.name);
         });
-        return nameReceived;
     }
-    if (key == 'soundOn') {
+    if (key === 'id') {
+        chrome.storage.local.get(key, function(result) {
+            console.log(result)
+            returnFunct(result.id);
+        });
+    }
+    if (key === 'soundOn') {
         waitForLocal('soundToggle').then(result => {
             if (result) {
                 playMario().play();
