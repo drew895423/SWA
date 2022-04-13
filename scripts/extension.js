@@ -1,15 +1,4 @@
 let volumeSetting;
-let idColor = 'red';
-
-//color change doesnt hit START HERE TOMORROW
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
-      console.log(response.idfound);
-      if (response.idfound === '我收到') {
-        idColor = 'green';
-      }
-    });
-});
 
 document.addEventListener('DOMContentLoaded', function() {
     var button = document.getElementById('Settings');
@@ -46,31 +35,21 @@ document.addEventListener('DOMContentLoaded', function() {
     soundTest.addEventListener('click', () => {
         playMario().play();
     })
-    var extIdButton = document.getElementById('extID');
-    extIdButton.addEventListener('click', () => {
-        chromeSet('id', chrome.runtime.id);
-    })
-    extIdButton.style.background = idColor;
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(message)
     if(message.command === 'name') {
-        chromeGet(message.command, sendResponse);
-    }
-    if(message.command === 'id') {
         chromeGet(message.command, sendResponse);
     }
     if(message.command === 'soundOn' && chromeGet(message.command)) {
         playMario().play();
     }
+    if(message.command === 'notifyCell') {
+        sendResponse('thanks');
+    }
     return true;
 });
-
-function waitToSend(gottenName) {
-    if (gottenName) {
-        return gottenName;
-    }
-}
 
 function getInitVolume() {
     return new Promise (resolve => {
@@ -117,12 +96,6 @@ function chromeGet(key, returnFunct) {
     if (key === 'name') {
         chrome.storage.local.get(key, function(result) {
             returnFunct(result.name);
-        });
-    }
-    if (key === 'id') {
-        chrome.storage.local.get(key, function(result) {
-            console.log(result)
-            returnFunct(result.id);
         });
     }
     if (key === 'soundOn') {

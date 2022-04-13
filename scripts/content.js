@@ -2,7 +2,6 @@ let stillCheck = true;
 let stillCheckName = true;
 let saveResonse;
 let responseName;
-let extID;
 let isKeepAliveGoing = true;
 let editorExtensionId;
 
@@ -23,28 +22,17 @@ function findUserName() {
 }
 findUserName();
 
-function getExtID() {
-    function waitForID() {
-        return new Promise (resolve => {
-            chrome.runtime.sendMessage(editorExtensionId, {command: 'id'}, (response) => {
-                resolve(response);
-            });
-        });
-    }
-    waitForID().then(resolve => {
-        if (resolve != null) {
-            extID = resolve;
-            console.log('ext id is: ' + extID)
-            return resolve;
-        }
-    });
-}
-getExtID();
-
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     editorExtensionId = sender.id;
     sendResponse({idFound: '我收到'});
 });
+
+function notifyFirebase(extID) {
+    console.log('trying to send notify cell at ' + extID)
+    chrome.runtime.sendMessage(extID, {command: 'notifyCell'}, response => {
+        console.log(response);
+    });
+}
 
 let observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
