@@ -24,15 +24,8 @@ findUserName();
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
     editorExtensionId = sender.id;
-    sendResponse({idFound: '我收到'});
+    sendResponse({idFound: 'hi'});
 });
-
-function notifyFirebase(extID) {
-    console.log('trying to send notify cell at ' + extID)
-    chrome.runtime.sendMessage(extID, {command: 'notifyCell'}, response => {
-        console.log(response);
-    });
-}
 
 let observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
@@ -91,8 +84,9 @@ function checkForName() {
 
 function checkForIncident() {
     //possible fix to getting notifications with nothing actually in the que
-    if (document.querySelectorAll('[id^=incident]').length > 1) {
-        shouldNotify();
+    let foundIncidents = document.querySelectorAll('[id^=incident]')
+    if (foundIncidents.length > 1) {
+        shouldNotify(foundIncidents);
     } else {
         //old, usually name loads first, keeping to double check
         setTimeout(checkForIncident, 4000);
@@ -103,7 +97,35 @@ function shouldNotify() {
     if (stillCheck && stillCheckName) {
         chrome.runtime.sendMessage(editorExtensionId, {command: 'soundOn'});
         stillCheck = false;
-        notifyBrowser('hi', 'hi', 'hi');
+        const ticketInfo = document.querySelectorAll('[id^=incident]')[1].getElementsByTagName('td');
+        let ticketInfoCondensed;
+        if (ticketInfo[4].innerText.length > 29) {
+            ticketInfoCondensed = ticketInfo[4].innerText.slice(0, 29);
+        } else {
+            ticketInfoCondensed = ticketInfo[4].innerText;
+        }
+        notifyBrowser(ticketInfo[0].innerText, ticketInfoCondensed, 'hi');
         observer.disconnect();
     }
 }
+
+function waitingTimer() {
+    return new Promise (resolve => {
+        chrome.runtime.sendMessage(editorExtensionId, {command: 'getTimeSetting'}, (response) => {
+            resolve(response);
+        });
+    });
+}
+
+waitingTimer().then(resolve => {
+    if (resolve) {
+        setTimeout(() => {
+            location.reload();
+        }, resolve * 1000);
+    } else {
+        console.log('default time is being used');
+        setTimeout(() => {
+            location.reload();
+        }, 60000);
+    }
+});

@@ -1,4 +1,5 @@
 let volumeSetting;
+let timeSetting;
 
 document.addEventListener('DOMContentLoaded', function() {
     var button = document.getElementById('Settings');
@@ -34,19 +35,31 @@ document.addEventListener('DOMContentLoaded', function() {
     var soundTest = document.getElementById('testSound');
     soundTest.addEventListener('click', () => {
         playMario().play();
-    })
+    });
+    var timeSlider = document.getElementById('timer-control');
+    var timeDisplay = document.getElementById('showTimer');
+    timeSlider.style.position = "relative";
+    timeSlider.style.left = "3px";
+    timeDisplay.style.position = "relative";
+    timeDisplay.style.left = "2px";
+    setStartingTime(timeSlider, timeDisplay);
+    timeSlider.addEventListener('change', ()=> {
+        chromeSet('savedTime', timeSlider.value);
+        timeSetting = timeSlider.value;
+        timeDisplay.innerText = timeSlider.value;
+    });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log(message)
+    console.log(message);
     if(message.command === 'name') {
         chromeGet(message.command, sendResponse);
     }
     if(message.command === 'soundOn' && chromeGet(message.command)) {
         playMario().play();
     }
-    if(message.command === 'notifyCell') {
-        sendResponse('thanks');
+    if(message.command === 'getTimeSetting') {
+        chromeGet('savedTime', sendResponse);
     }
     return true;
 });
@@ -63,6 +76,22 @@ function setStartingVolume(volumeSlider) {
     getInitVolume().then(result => {
         volumeSetting = result.savedVolume;
         volumeSlider.value = result.savedVolume;
+    });
+}
+
+function getInitTimer() {
+    return new Promise (resolve => {
+        chrome.storage.local.get('savedTime', result => {
+            resolve(result);
+        })
+    })
+}
+
+function setStartingTime(timeSlider, timeDisplay) {
+    getInitTimer().then(result => {
+        timeSetting = result.savedTime;
+        timeSlider.value = result.savedTime;
+        timeDisplay.innerText = result.savedTime;
     });
 }
 
@@ -92,7 +121,6 @@ function chromeSet(key, value) {
 }
 
 function chromeGet(key, returnFunct) {
-    console.log(key)
     if (key === 'name') {
         chrome.storage.local.get(key, function(result) {
             returnFunct(result.name);
@@ -103,6 +131,11 @@ function chromeGet(key, returnFunct) {
             if (result) {
                 playMario().play();
             }
+        });
+    }
+    if (key === 'savedTime') {
+        chrome.storage.local.get(key, function(result) {
+            returnFunct(result.savedTime);
         });
     }
 }
