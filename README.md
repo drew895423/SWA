@@ -16,6 +16,7 @@ To use:
   - minimize the inspected window and it is all set
     > only needs inspect done to one window
     > opening new tabs needs a new inspect window to be opened
+  - timer slider sets the amount of time to wait before refreshing all helpdesk.tn pages
 
 To setup:
   - Click settings and type in your name, this will stop pop ups from happening from tickets in your que

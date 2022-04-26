@@ -98,11 +98,9 @@ function shouldNotify() {
         chrome.runtime.sendMessage(editorExtensionId, {command: 'soundOn'});
         stillCheck = false;
         const ticketInfo = document.querySelectorAll('[id^=incident]')[1].getElementsByTagName('td');
-        let ticketInfoCondensed;
-        if (ticketInfo[4].innerText.length > 29) {
-            ticketInfoCondensed = ticketInfo[4].innerText.slice(0, 29);
-        } else {
-            ticketInfoCondensed = ticketInfo[4].innerText;
+        let ticketInfoCondensed = ticketInfo[4].innerText;
+        if (ticketInfoCondensed.length > 29) {
+            ticketInfoCondensed = ticketInfoCondensed.slice(0, 29);
         }
         notifyBrowser(ticketInfo[0].innerText, ticketInfoCondensed, 'hi');
         observer.disconnect();
